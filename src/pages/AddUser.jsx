@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import TitleSubTitle from '../components/TitleSubTitle';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import Navigate from '../components/Navigate';
+import { UserContext } from '../provider/UserProvider';
 
 const AddUser = () => {
+    const {totalUser, setTotalUser} = useContext(UserContext)
 
-    const handleAddUser=(e)=>{
+    const handleAddUser = (e) => {
         e.preventDefault();
         const form = e.target;
         const name = form.name.value;
@@ -14,29 +16,35 @@ const AddUser = () => {
         const gender = form.gender.value;
         const status = form.status.value;
 
-        const user ={
+        if(!name||!email){
+            Swal.fire("please give user name and valid email address");
+            return
+        }
+
+        const user = {
             name, email, gender, status
         }
         console.log(user);
 
-        fetch('http://localhost:5000/adduser',{
-            method:'POST',
-            headers:{
-                'content-Type':'application/json'
+        fetch('http://localhost:5000/adduser', {
+            method: 'POST',
+            headers: {
+                'content-Type': 'application/json'
             },
-            body:JSON.stringify(user)
+            body: JSON.stringify(user)
         })
-        .then(res=>res.json())
-        .then(data=>{
-            console.log(data);
-            if(data.insertedId){
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                if (data.insertedId) {
 
-                Swal.fire("user added successfully");
-            }
-            else{
-                Swal.fire("database connection lost");
-            }
-        })
+                    Swal.fire("user added successfully");
+                    setTotalUser(prevTotalUser => [...prevTotalUser, user])
+                }
+                else {
+                    Swal.fire("database connection lost");
+                }
+            })
     }
 
     return (
